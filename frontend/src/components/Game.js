@@ -12,15 +12,39 @@ const Game = () => {
   const gameOver = useSelector((s) => s.game.gameOver);
 
   const [summary, setSummary] = useState("");
+  const [summarizing, setSummarizing] = useState(false);
 
   const allowed = getAllowedPins(rolls);
   const currentFrameIndex = Math.min(buildFrames(rolls).length - 1, 9);
   const inProgress = !isGameOver(rolls);
 
-  const handleSummarize = () => {
-    setSummary(`Frames: ${JSON.stringify(frames)} | Scores: ${JSON.stringify(scores)}`);
+  // Summarize the game by sending frames and scores to the backend
+  const handleSummarize = async () => {
+    try {
+      setSummarizing(true);
+      setSummary("");
+
+      const res = await fetch("http://127.0.0.1:8000/summarize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ frames, scores }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Backend error ${res.status}: ${errText}`);
+      }
+
+      const data = await res.json();
+      setSummary(data.summary);
+    } catch (e) {
+      setSummary(`Error: ${e.message}`);
+    } finally {
+      setSummarizing(false);
+    }
   };
 
+  // Reset the game and clear the summary
   const handleReset = () => {
     dispatch(resetGame());
     setSummary(""); // 🔑 clear the old summary
@@ -69,9 +93,10 @@ const Game = () => {
         }}
       >
         <button onClick={handleReset}>Reset Game</button>
-        <button onClick={handleSummarize} disabled={inProgress}>
-          Summarize
+        <button onClick={handleSummarize} disabled={inProgress || summarizing}>
+          {summarizing ? "Summarizing..." : "Summarize"}
         </button>
+
       </div>
 
       {/* Summary box */}
