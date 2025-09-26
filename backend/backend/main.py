@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from bowling_backend.schemas import GameSummaryRequest, GameSummaryResponse
-from bowling_backend.services import generate_summary
+from backend.schemas import GameSummaryRequest, GameSummaryResponse
+from backend.services import generate_summary
 
 app = FastAPI(title="Bowling Summarizer API")
 
