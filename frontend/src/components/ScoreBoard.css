@@ -1,0 +1,7 @@
+.scoreboard {
+  display: grid;
+  grid-template-columns: repeat(10, 90px);
+  gap: 10px;
+  margin: 30px auto;
+  justify-content: center;
+}
